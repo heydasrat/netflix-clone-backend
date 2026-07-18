@@ -197,16 +197,41 @@ const togglePublish = asyncHandler(async (req, res) => {
 })
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const videos = await Video.find({ isPublished: true })
-    if (videos.length <= 0) {
-        throw new ApiError(404, "Videos not found")
+    const { search = "" } = req.query;
+
+    
+    const query = {
+        isPublished: true
+    };
+    console.log(query)
+
+    if (search.trim()) {
+        query.$or = [
+            {
+                title: {
+                    $regex: search,
+                    $options: "i"
+                }
+            },
+            {
+                description: {
+                    $regex: search,
+                    $options: "i"
+                }
+            }
+        ];
     }
-    console.log(videos)
+
+    const videos = await Video.find(query);
 
     return res.status(200).json(
-        new ApiResponse(200, videos, "All published videos fetched")
-    )
-})
+        new ApiResponse(
+            200,
+            videos,
+            "Videos fetched successfully"
+        )
+    );
+});
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
@@ -233,9 +258,8 @@ const getVideoById = asyncHandler(async (req, res) => {
 export {
     publishVideo,
     updateVideo,
-    deleteVieoByid,
+    // deleteVieoByid,
     togglePublish,
     getAllVideos,
     getVideoById,
-    getAllVideos
 }
