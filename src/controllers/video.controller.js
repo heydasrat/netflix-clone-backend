@@ -205,7 +205,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     };
     console.log(query)
 
-    if (search.trim()) {
+    if (search.trim())  {
         query.$or = [
             {
                 title: {
