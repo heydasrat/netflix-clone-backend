@@ -199,13 +199,16 @@ const togglePublish = asyncHandler(async (req, res) => {
 const getAllVideos = asyncHandler(async (req, res) => {
     const { search = "" } = req.query;
 
-    
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
     const query = {
         isPublished: true
     };
-    console.log(query)
 
-    if (search.trim())  {
+    if (search.trim()) {
         query.$or = [
             {
                 title: {
@@ -222,7 +225,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
         ];
     }
 
-    const videos = await Video.find(query);
+    const videos = await Video.find(query)
+        .skip(skip)
+        .limit(limit);
 
     return res.status(200).json(
         new ApiResponse(
